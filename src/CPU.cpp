@@ -1,6 +1,4 @@
-void CPU::next_byte() {
-
-}
+#include "CPU.h"
 
 
 bool CPU::if_carry() {
@@ -91,6 +89,11 @@ void CPU::set_sign(uint8_t src) {
 }
 
 
+uint16_t CPU::rel_addr(uint8_t src) {
+    return src + registers.PC;
+}
+
+
 uint8_t CPU::load(uint16_t addr) {
     return memory[addr];
 }
@@ -101,43 +104,59 @@ void CPU::store(uint16_t addr, uint8_t data) {
 }
 
 
-void CPU::ADC_IMM() {
+uint8_t CPU::next_byte() {
+    return memory[registers.PC++];
+}
 
+
+uint16_t little_to_big_endian(uint8_t lsb, uint8_t msb) {
+    return ((uint16_t)msb << 8) + (uint16_t)lsb;
+}
+
+
+void CPU::ADC_IMM() {
+    ADC_helper(next_byte());
 }
 
 
 void CPU::ADC_ZP() {
-
+    ADC_helper(memory[next_byte()]);
 }
 
 
 void CPU::ADC_ZPX() {
-
+    ADC_helper(memory[next_byte() + (uint16_t)registers.X]);
 }
 
 
 void CPU::ADC_AB() {
-
+    uint8_t lsb = next_byte();
+    uint8_t msb = next_byte();
+    ADC_helper(memory[little_to_big_endian(lsb, msb)]);
 }
 
 
 void CPU::ADC_ABX() {
-
+    uint8_t lsb = next_byte();
+    uint8_t msb = next_byte();
+    ADC_helper(memory[little_to_big_endian(lsb, msb) + (uint16_t)registers.X]);
 }
 
 
 void CPU::ADC_ABY() {
-
+    uint8_t lsb = next_byte();
+    uint8_t msb = next_byte();
+    ADC_helper(memory[little_to_big_endian(lsb, msb) + (uint16_t)registers.Y]);
 }
 
 
 void CPU::ADC_INX() {
-
+    ADC_helper(memory[registers.X]); // TODO: Wrong?
 }
 
 
 void CPU::ADC_INY() {
-
+    ADC_helper(memory[registers.Y]); // TODO: Wrong?
 }
 
 
@@ -242,6 +261,9 @@ void CPU::ASL_helper(uint8_t src) {
 
 
 void CPU::BCC_REL() {
+    if (!if_carry()) {
+        registers.PC = rel
+    }
 }
 
 

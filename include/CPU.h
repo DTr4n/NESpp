@@ -2,12 +2,15 @@
 #define CPU_H
 
 #include <cstdint>
-#include "Instructions.h"
 
 class CPU {
 public:
     CPU();
     ~CPU();
+
+    // uint8_t fetch();
+    // void execute();
+
 
 private:
     struct CPU_Registers {
@@ -24,8 +27,6 @@ private:
 
     // TODO clock; 
     
-    void next_byte();
-
     // Status register accessors and mutators
     bool if_carry() const;
     bool if_zero() const;
@@ -41,22 +42,22 @@ private:
     void set_break(bool condition);
     void set_overflow(bool condition);
     void set_sign(uint8_t src);
-};
 
-    // uint16_t rel_addr(uint8_t src);
+    uint16_t rel_addr(uint8_t src); // TODO: Not complete
     // void set_status_register();
     // uint8_t get_status_register();
     // uint8_t pull();
     // void push(uint8_t);
 
     // Load a byte from the memory address
-    uint8_t load(uint16_t addr) const;
+    uint8_t load(uint16_t addr) const; // TODO: Not complete
 
     // Store a byte to the memory address
-    void store(uint16_t addr, uint8_t byte);
-   
-    // uint8_t fetch();
-    // void execute();
+    void store(uint16_t addr, uint8_t data); // TODO: Not complete
+
+    void next_byte(); // TODO: Not complete
+
+    inline uint16_t little_to_big_endian(uint8_t lsb, uint8_t msb);
 
     // ----------------------
     // Instructions Operation
@@ -338,6 +339,6 @@ private:
     // TYA - transfer index Y to accumulator
     void TYA();
 
-}
+};
 
 #endif // CPU_H
