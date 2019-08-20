@@ -109,8 +109,8 @@ uint8_t CPU::next_byte() {
 }
 
 
-uint16_t little_to_big_endian(uint8_t lsb, uint8_t msb) {
-    return ((uint16_t)msb << 8) + (uint16_t)lsb;
+uint16_t little_to_big_endian(uint8_t low, uint8_t high) {
+    return ((uint16_t)high << 8) + (uint16_t)low;
 }
 
 
@@ -125,28 +125,25 @@ void CPU::ADC_ZP() {
 
 
 void CPU::ADC_ZPX() {
-    ADC_helper(memory[next_byte() + (uint16_t)registers.X]);
+    ADC_helper(memory[next_byte() + registers.X]);
 }
 
 
 void CPU::ADC_AB() {
-    uint8_t lsb = next_byte();
-    uint8_t msb = next_byte();
-    ADC_helper(memory[little_to_big_endian(lsb, msb)]);
+    uint16_t addr = little_to_big_endian(next_byte(), next_byte());
+    ADC_helper(memory[addr]);
 }
 
 
 void CPU::ADC_ABX() {
-    uint8_t lsb = next_byte();
-    uint8_t msb = next_byte();
-    ADC_helper(memory[little_to_big_endian(lsb, msb) + (uint16_t)registers.X]);
+    uint16_t addr = little_to_big_endian(next_byte(), next_byte());
+    ADC_helper(memory[addr + registers.X]);
 }
 
 
 void CPU::ADC_ABY() {
-    uint8_t lsb = next_byte();
-    uint8_t msb = next_byte();
-    ADC_helper(memory[little_to_big_endian(lsb, msb) + (uint16_t)registers.Y]);
+    uint16_t addr = little_to_big_endian(next_byte(), next_byte());
+    ADC_helper(memory[addr + registers.Y]);
 }
 
 
@@ -179,32 +176,35 @@ void CPU::ADC_helper(uint8_t src) {
 
 
 void CPU::AND_IMM() {
-
+    AND_helper(next_byte());
 }
 
 
 void CPU::AND_ZP() {
-
+    AND_helper(memory[next_byte()]);
 }
 
 
 void CPU::AND_ZPX() {
-
+    AND_helper(memory[next_byte() + registers.X]);
 }
 
 
 void CPU::AND_AB() {
-
+    uint16_t addr = little_to_big_endian(next_byte(), next_byte());
+    AND_helper(memory[addr]);
 }
 
 
 void CPU::AND_ABX() {
-
+    uint16_t addr = little_to_big_endian(next_byte(), next_byte());
+    AND_helper(memory[addr + registers.X]);
 }
 
 
 void CPU::AND_ABY() {
-
+    uint16_t addr = little_to_big_endian(next_byte(), next_byte());
+    AND_helper(memory[addr + registers.Y]);
 }
 
 
@@ -227,12 +227,14 @@ void CPU::AND_helper(uint8_t src) {
 
 
 void CPU::ASL_ACC() {
-
+    registers.A = ASL_helper(registers.A);
 }
 
 
 void CPU::ASL_ZP() {
-
+    uint16_t addr = next_byte();
+    uint8_t data = ASL_helper(mem[]);
+    store()
 }
 
 
@@ -251,12 +253,13 @@ void CPU::ASL_ABX() {
 }
 
 
-void CPU::ASL_helper(uint8_t src) {
+uint8_t CPU::ASL_helper(uint8_t src) {
     set_carry(src & 0x80);
     src <<= 1;
     src &= 0xff;
     set_sign(src);
     set_zero(src);
+    return src;
 }
 
 

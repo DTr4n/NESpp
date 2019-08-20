@@ -57,7 +57,7 @@ private:
 
     void next_byte(); // TODO: Not complete
 
-    inline uint16_t little_to_big_endian(uint8_t lsb, uint8_t msb);
+    inline uint16_t little_to_big_endian(uint8_t low, uint8_t high);
 
     // ----------------------
     // Instructions Operation
@@ -104,7 +104,7 @@ private:
     void ASL_ZPX();
     void ASL_AB();
     void ASL_ABX();
-    void ASL_helper(uint8_t src);
+    uint8_t ASL_helper(uint8_t src);
 
     // BCC - branch on carry clear
     void BCC_REL();
