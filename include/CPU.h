@@ -55,290 +55,98 @@ private:
     // Store a byte to the memory address
     void store(uint16_t addr, uint8_t data); // TODO: Not complete
 
-    void next_byte(); // TODO: Not complete
+    void next_byte(); // TODO: I feel like this can be replaced with load(pc++)
 
     inline uint16_t little_to_big_endian(uint8_t low, uint8_t high);
 
-    // ----------------------
-    // Instructions Operation
-    // ----------------------
-    // Addressing Modes Acronyms : 
-    //      IMM - Immediate
-    //      AB  - Absolute
-    //      ABX - Absolute Indexed X
-    //      ABY - Absolute Indexed Y
-    //      ZP  - Zero-Page
-    //      ZPX - Zero-Page Indexed X
-    //      ZPY - Zero-Page Indexed Y
-    //      ACC - Accumulator
-    //      IN  - Indirect
-    //      INX - Indirect Indexed X
-    //      INY - Indirect Indexed Y
-    //      REL - Relative
+    // Addressing Modes
+    uint16_t get_IMM();     // Immediate
+    uint16_t get_AB();      // Absolute
+    uint16_t get_ABX();     // Absolute Indexed X
+    uint16_t get_ABY();     // Absolute Indexed Y
+    uint16_t get_ZP();      // Zero-Page
+    uint16_t get_ZPX();     // Zero-Page Indexed X
+    uint16_t get_ZPY();     // Zero-Page Indexed Y
+    uint16_t get_ACC();     // Accumulator
+    uint16_t get_IN();      // Indirect
+    uint16_t get_INX();     // Indexed Indirect
+    uint16_t get_INY();     // Indirect Indexed
+    uint16_t get_REL();     // Relative
 
-    // ADC - add memory to accumulator with carry
-    void ADC_IMM();
-    void ADC_ZP();
-    void ADC_ZPX();
-    void ADC_AB();
-    void ADC_ABX();
-    void ADC_ABY();
-    void ADC_INX();
-    void ADC_INY();
-    void ADC_helper(uint8_t src);
+    // Opcodes
+    void ADC(uint16_t src);         // Add memory to accumulator with carry
+    void AND(uint16_t src);         // "AND" memory with accumulator
+    void ASL(uint16_t src);         // Shift left one bit (memory)
+    void ASL_ACC(uint16_t src);     // Shift left one bit (accumulator)
+ 
+    void BCC(uint16_t src);         // Branch on carry clear
+    void BCS(uint16_t src);         // Branch on carry set
+    void BEQ(uint16_t src);         // Branch on result zero
+    void BIT(uint16_t src);         // Test bits in memory with accumulator
+    void BMI(uint16_t src);         // Branch on result minus
+    void BNE(uint16_t src);         // Branch on result not zero
+    void BPL(uint16_t src);         // Branch on result plus
+    void BRK(uint16_t src);         // Force break
+    void BVC(uint16_t src);         // Branch on overflow clear
+    void BVS(uint16_t src);         // Branch on overflow set
 
-    // AND - "AND" memory with accumulator
-    void AND_IMM();
-    void AND_ZP();
-    void AND_ZPX();
-    void AND_AB();
-    void AND_ABX();
-    void AND_ABY();
-    void AND_INX();
-    void AND_INY();
-    void AND_helper(uint8_t src);
+    void CLC(uint16_t src);         // Clear carry flag
+    void CLD(uint16_t src);         // Clear decimal mode
+    void CLI(uint16_t src);         // Clear interrupt disable bit
+    void CLV(uint16_t src);         // Clear overflow flag
+    void CMP(uint16_t src);         // Compare memory and accumulator
+    void CPX(uint16_t src);         // Compare memory and index X
+    void CPYM(uint16_t src);        // Compare memory and index Y
 
-    // ASL - shift left one bit (memory or accumulator)
-    void ASL_ACC();
-    void ASL_ZP();
-    void ASL_ZPX();
-    void ASL_AB();
-    void ASL_ABX();
-    uint8_t ASL_helper(uint8_t src);
+    void DEC(uint16_t src);         // Decrement memory by one
+    void DEX(uint16_t src);         // Decrement index X by one
+    void DEY(uint16_t src);         // Decrement index Y by one
 
-    // BCC - branch on carry clear
-    void BCC_REL();
+    void EOR(uint16_t src);         // "XOR" memory with accumulator
 
-    // BCS - branch on carry set
-    void BCS_REL();
+    void INC(uint16_t src);         // Increment memory by one
+    void INX(uint16_t src);         // Increment index X by one
+    void INY(uint16_t src);         // Increment index Y by one
 
-    // BEQ - branch on result zero
-    void BEQ_REL();
+    void JMP(uint16_t src);         // Jump to new location
+    void JSR(uint16_t src);         // Jump to new location saving return address
 
-    // BIT - test bits in memory with accumulator
-    void BIT_ZP();
-    void BIT_AB();
+    void LDA(uint16_t src);         // Load accumulator with memory
+    void LDX(uint16_t src);         // Load index X with memory
+    void LDY(uint16_t src);         // Load index Y with memory
+    void LSR(uint16_t src);         // Shift right one bit (memory)
+    void LSR_ACC(uint16_t src);     // Shift right one bit (accumulator)
 
-    // BNE - branch on result not zero
-    void BMI_REL();
+    void NOP(uint16_t src);         // No operation
 
-    // BPL - branch on result plus
-    void BNE_REL();
+    void ORA(uint16_t src);         // "OR" memory with accumulator
 
-    // BRK - force break
-    void BPL_REL();
+    void PHA(uint16_t src);         // Push accumulator on stack
+    void PHP(uint16_t src);         // Push processor status on stack
+    void PLA(uint16_t src);         // Pull accumulator from stack
+    void PLP(uint16_t src);         // Pull processor status from stack
 
-    // BVC - branch on overflow clear
-    void BVC_REL();
+    void ROL(uint16_t src);         // Rotate one bit left (memory)
+    void ROL_ACC(uint16_t src);     // Rotate one bit left (accumulator)
+    void ROR(uint16_t src);         // Rotate one bit right (memory)
+    void ROR_ACC(uint16_t src);     // Rotate one bit right (accumulator)
+    void RTI(uint16_t src);         // Return from interrupt
+    void RTS(uint16_t src);         // Return from subroutine
 
-    // BVS - branch on overflow set
-    void BVS_REL();
+    void SBC(uint16_t src);         // Subtract memory from accumulator with borrow
+    void SEC(uint16_t src);         // Set carry flag
+    void SED(uint16_t src);         // Set decimal mode
+    void SEI(uint16_t src);         // Set interrupt disable status
+    void STA(uint16_t src);         // Store accumulator in memory
+    void STX(uint16_t src);         // Store index X in memory
+    void STY(uint16_t src);         // Store index Y in memory
 
-    // CLC - clear carry flag
-    void CLC();
-
-    // CLD - clear decimal mode
-    void CLD();
-
-    // CLI - clear interrupt disable bit
-    void CLI();
-
-    // CLV - clear overflow flag
-    void CLV();
-
-    // CMP - compare memory and accumulator
-    void CMP_IMM();
-    void CMP_ZP();
-    void CMP_ZPX();
-    void CMP_AB();
-    void CMP_ABX();
-    void CMP_ABY();
-    void CMP_INX();
-    void CMP_INY();
-
-    // CPX - compare memory and index X
-    void CPX_IMM();
-    void CPX_ZP();
-    void CPX_AB();
-
-    // CPY - compare memory and index Y
-    void CPY_IMM();
-    void CPY_ZP();
-    void CPY_AB();
-
-    // DEC - decrement memory by one
-    void DEC_ZP();
-    void DEC_ZPX();
-    void DEC_AB();
-    void DEC_ABX();
-
-    // DEX - decrement index X by one
-    void DEX();
-
-    // DEY - decrement index Y by one
-    void DEY();
-
-    // EOR - "XOR" memory with accumulator
-    void EOR_IMM();
-    void EOR_ZP();
-    void EOR_ZPX();
-    void EOR_AB();
-    void EOR_ABX();
-    void EOR_ABY();
-    void EOR_INX();
-    void EOR_INY();
-
-    // INC - increment memory by one
-    void INC_ZP();
-    void INC_ZPX();
-    void INC_AB();
-    void INC_ABX();
-
-    // INX - increment index X by one
-    void INX();
-
-    // INY - increment index Y by one
-    void INY();
-
-    // JMP - jump to new location
-    void JMP_AB();
-    void JMP_IN();
-
-    // JSR - jump to new location saving return address
-    void JSR_AB();
-
-    // LDA - load accumulator with memory
-    void LDA_IMM();
-    void LDA_ZP();
-    void LDA_ZPX();
-    void LDA_AB();
-    void LDA_ABX();
-    void LDA_ABY();
-    void LDA_INX();
-    void LDA_INY();
-
-    // LDX - load index X with memory
-    void LDX_IMM();
-    void LDX_ZP();
-    void LDX_ZPY();
-    void LDX_AB();
-    void LDX_ABY();
-
-    // LDY - load index Y with memory
-    void LDY_IMM();
-    void LDY_ZP();
-    void LDY_ZPX();
-    void LDY_AB();
-    void LDY_ABX();
-
-    // LSR - shift right one bit (memory or accumulator)
-    void LSR_ACC();
-    void LSR_ZP();
-    void LSR_ZPX();
-    void LSR_AB();
-    void LSR_ABX();
-
-    // NOP - no operation
-    void NOP();
-
-    // ORA - "OR" memory with accumulator
-    void ORA_IMM();
-    void ORA_ZP();
-    void ORA_ZPX();
-    void ORA_AB();
-    void ORA_ABX();
-    void ORA_ABY();
-    void ORA_INX();
-    void ORA_INY();
-
-    // PHA - push accumulator on stack
-    void PHA();
-
-    // PHP - push processor status on stack
-    void PHP();
-
-    // PLA - pull accumulator from stack
-    void PLA();
-
-    // PLP - pull processor status from stack
-    void PLP();
-
-    // ROL - rotate one bit left (memory or accumulator)
-    void ROL_ACC();
-    void ROL_ZP();
-    void ROL_ZPX();
-    void ROL_AB();
-    void ROL_ABX();
-
-    // ROR - rotate one bit right (memory or accumulator)
-    void ROR_ACC();
-    void ROR_ZP();
-    void ROR_ZPX();
-    void ROR_AB();
-    void ROR_ABX();
-
-    // RTI - return from interrupt
-    void RTI();
-
-    // RTS - return from subroutine
-    void RTS();
-
-    // SBC - subtract memory from accumulator with borrow
-    void SBC_IMM();
-    void SBC_ZP();
-    void SBC_ZPX();
-    void SBC_AB();
-    void SBC_ABX();
-    void SBC_ABY();
-    void SBC_INX();
-    void SBC_INY();
-
-    // SEC - set carry flag
-    void SEC();
-
-    // SED - set decimal mode
-    void SED();
-
-    // SEI - set interrupt disable status
-    void SEI();
-
-    // STA - store accumulator in memory
-    void STA_ZP();
-    void STA_ZPX();
-    void STA_AB();
-    void STA_ABX();
-    void STA_ABY();
-    void STA_INX();
-    void STA_INY();
-
-    // STX - store index X in memory
-    void STX_ZP();
-    void STX_ZPY();
-    void STX_AB();
-
-    // STY - store index Y in memory
-    void STY_ZP();
-    void STY_ZPX();
-    void STY_AB();
-
-    // TAX - transfer accumulator to index X
-    void TAX();
-
-    // TAY - transfer accumulator to index Y
-    void TAY();
-
-    // TSX - transfer stack pointer to index X
-    void TSX();
-
-    // TXA - transfer index X to accumulator
-    void TXA();
-
-    // TXS - transfer index X to stack pointer
-    void TXS();
-
-    // TYA - transfer index Y to accumulator
-    void TYA();
-
+    void TAX(uint16_t src);         // Transfer accumulator to index X
+    void TAY(uint16_t src);         // Transfer accumulator to index Y
+    void TSX(uint16_t src);         // Transfer stack pointer to index X
+    void TXA(uint16_t src);         // Transfer index X to accumulator
+    void TXS(uint16_t src);         // Transfer index X to stack pointer
+    void TYA(uint16_t src);         // Transfer index Y to accumulator
 };
 
 #endif // CPU_H

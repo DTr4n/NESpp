@@ -109,858 +109,117 @@ uint8_t CPU::next_byte() {
 }
 
 
-uint16_t little_to_big_endian(uint8_t low, uint8_t high) {
+uint16_t CPU::little_to_big_endian(uint8_t low, uint8_t high) {
     return ((uint16_t)high << 8) + (uint16_t)low;
 }
 
 
-void CPU::ADC_IMM() {
-    ADC_helper(next_byte());
+uint16_t CPU::get_IMM() {
+    return registers.PC++;
 }
 
 
-void CPU::ADC_ZP() {
-    ADC_helper(memory[next_byte()]);
+uint16_t CPU::get_AB() {
+    return little_to_big_endian(next_byte(), next_byte());
 }
 
 
-void CPU::ADC_ZPX() {
-    ADC_helper(memory[next_byte() + registers.X]);
+uint16_t CPU::get_ABX() {
+    return little_to_big_endian(next_byte(), next_byte()) + registers.X;
 }
 
 
-void CPU::ADC_AB() {
-    uint16_t addr = little_to_big_endian(next_byte(), next_byte());
-    ADC_helper(memory[addr]);
+uint16_t CPU::get_ABY() {
+    return little_to_big_endian(next_byte(), next_byte()) + registers.Y;
 }
 
 
-void CPU::ADC_ABX() {
-    uint16_t addr = little_to_big_endian(next_byte(), next_byte());
-    ADC_helper(memory[addr + registers.X]);
+uint16_t CPU::get_ZP() {
+    return next_byte();
 }
 
 
-void CPU::ADC_ABY() {
-    uint16_t addr = little_to_big_endian(next_byte(), next_byte());
-    ADC_helper(memory[addr + registers.Y]);
+uint16_t CPU::get_ZPX() {
+    return (next_byte() + registers.X) % 256;   // TODO: mod 256 - because each page is 256 bytes
 }
 
 
-void CPU::ADC_INX() {
-    ADC_helper(memory[registers.X]); // TODO: Wrong? indirect indexed addressing vs indexed indirect mode
+uint16_t CPU::get_ZPY() {
+    return (next_byte() + registers.Y) % 256;   // TODO: mod 256 - because each page is 256 bytes
 }
 
 
-void CPU::ADC_INY() {
-    ADC_helper(memory[registers.Y]); // TODO: Wrong?
+uint16_t CPU::get_ACC() {
+    return 0;   // unused
 }
 
 
-void CPU::ADC_helper(uint8_t src) {
-    uint16_t temp = src + registers.A + if_carry();
+uint16_t CPU::get_IN() {
+    // TODO
+}
+
+
+uint16_t CPU::get_INX() {
+    // TODO
+}
+
+
+uint16_t CPU::get_INY() {
+    // TODO
+}
+
+
+uint16_t CPU::get_REL() {
+    // TODO
+}
+
+
+
+void CPU::ADC(uint16_t src) {
+    uint8_t data = memory[src];
+    uint16_t temp = data + registers.A + if_carry();
     set_zero(temp & 0xFF);  // Review: What is meant by this? - This is not valid in decimal mode
     if (if_decimal()) {
-        if (((registers.A & 0xF) + (src & 0xF) + if_carry()) > 9)
+        if (((registers.A & 0xF) + (data & 0xF) + if_carry()) > 9)
             temp += 6;
         set_sign(temp);
-        set_overflow(!((registers.A ^ src) & 0x80) && ((registers.A ^ temp) & 0x80));
+        set_overflow(!((registers.A ^ data) & 0x80) && ((registers.A ^ temp) & 0x80));
         set_carry(temp > 0x99);
     } else {
         set_sign(temp);
-        set_overflow(!((registers.A ^ src) & 0x80) && ((registers.A ^ temp) & 0x80));
+        set_overflow(!((registers.A ^ data) & 0x80) && ((registers.A ^ temp) & 0x80));
         set_carry(temp > 0x99);
     }
     CPU_Registers.A = (uint8_t)temp;
 }
 
 
-void CPU::AND_IMM() {
-    AND_helper(next_byte());
-}
-
-
-void CPU::AND_ZP() {
-    AND_helper(memory[next_byte()]);
-}
-
-
-void CPU::AND_ZPX() {
-    AND_helper(memory[next_byte() + registers.X]);
-}
-
-
-void CPU::AND_AB() {
-    uint16_t addr = little_to_big_endian(next_byte(), next_byte());
-    AND_helper(memory[addr]);
-}
-
-
-void CPU::AND_ABX() {
-    uint16_t addr = little_to_big_endian(next_byte(), next_byte());
-    AND_helper(memory[addr + registers.X]);
-}
-
-
-void CPU::AND_ABY() {
-    uint16_t addr = little_to_big_endian(next_byte(), next_byte());
-    AND_helper(memory[addr + registers.Y]);
-}
-
-
-void CPU::AND_INX() {
-
-}
-
-
-void CPU::AND_INY() {
-
-}
-
-
-void CPU::AND_helper(uint8_t src) {
-    src &= registers.A;
-    set_sign(src);
-    set_zero(src);
-    registers.A = src;
-}
-
-
-void CPU::ASL_ACC() {
-    registers.A = ASL_helper(registers.A);
-}
-
-
-void CPU::ASL_ZP() {
-    uint16_t addr = next_byte();
-    uint8_t data = ASL_helper(mem[]);
-    store()
-}
-
-
-void CPU::ASL_ZPX() {
-
-}
-
-
-void CPU::ASL_AB() {
-
-}
-
-
-void CPU::ASL_ABX() {
-
-}
-
-
-uint8_t CPU::ASL_helper(uint8_t src) {
-    set_carry(src & 0x80);
-    src <<= 1;
-    src &= 0xff;
-    set_sign(src);
-    set_zero(src);
-    return src;
-}
-
-
-void CPU::BCC_REL() {
-    if (!if_carry()) {
-        registers.PC = rel
-    }
-}
-
-
-
-void CPU::BCS_REL() {
-
-}
-
-
-
-void CPU::BEQ_REL() {
-
-}
-
-
-
-void CPU::BIT_ZP() {
-
-}
-
-
-void CPU::BIT_AB() {
-
-}
-
-
-
-void CPU::BMI_REL() {
-
-}
-
-
-
-void CPU::BNE_REL() {
-
-}
-
-
-
-void CPU::BPL_REL() {
-
-}
-
-
-
-void CPU::BVC_REL() {
-
-}
-
-
-
-void CPU::BVS_REL() {
-
-}
-
-
-
-void CPU::CLC() {
-
-}
-
-
-
-void CPU::CLD() {
-
-}
-
-
-
-void CPU::CLI() {
-
-}
-
-
-
-void CPU::CLV() {
-
-}
-
-
-
-void CPU::CMP_IMM() {
-
-}
-
-
-void CPU::CMP_ZP() {
-
-}
-
-
-void CPU::CMP_ZPX() {
-
-}
-
-
-void CPU::CMP_AB() {
-
-}
-
-
-void CPU::CMP_ABX() {
-
-}
-
-
-void CPU::CMP_ABY() {
-
-}
-
-
-void CPU::CMP_INX() {
-
-}
-
-
-void CPU::CMP_INY() {
-
-}
-
-
-
-void CPU::CPX_IMM() {
-
-}
-
-
-void CPU::CPX_ZP() {
-
-}
-
-
-void CPU::CPX_AB() {
-
-}
-
-
-
-void CPU::CPY_IMM() {
-
-}
-
-
-void CPU::CPY_ZP() {
-
-}
-
-
-void CPU::CPY_AB() {
-
-}
-
-
-
-void CPU::DEC_ZP() {
-
-}
-
-
-void CPU::DEC_ZPX() {
-
-}
-
-
-void CPU::DEC_AB() {
-
-}
-
-
-void CPU::DEC_ABX() {
-
-}
-
-
-
-void CPU::DEX() {
-
-}
-
-
-
-void CPU::DEY() {
-
-}
-
-
-
-void CPU::EOR_IMM() {
-
-}
-
-
-void CPU::EOR_ZP() {
-
-}
-
-
-void CPU::EOR_ZPX() {
-
-}
-
-
-void CPU::EOR_AB() {
-
-}
-
-
-void CPU::EOR_ABX() {
-
-}
-
-
-void CPU::EOR_ABY() {
-
-}
-
-
-void CPU::EOR_INX() {
-
-}
-
-
-void CPU::EOR_INY() {
-
-}
-
-
-
-// INC - increment memory by one
-void CPU::INC_ZP() {
-
-}
-
-
-void CPU::INC_ZPX() {
-
-}
-
-
-void CPU::INC_AB() {
-
-}
-
-
-void CPU::INC_ABX() {
-
-}
-
-
-
-// INX - increment index X by one
-void CPU::INX() {
-
-}
-
-
-
-// INY - increment index Y by one
-void CPU::INY() {
-
-}
-
-
-
-// JMP - jump to new location
-void CPU::JMP_AB() {
-
-}
-
-
-void CPU::JMP_IN() {
-
-}
-
-
-
-void CPU::JSR_AB() {
-
-}
-
-
-
-void CPU::LDA_IMM() {
-
-}
-
-
-void CPU::LDA_ZP() {
-
-}
-
-
-void CPU::LDA_ZPX() {
-
-}
-
-
-void CPU::LDA_AB() {
-
-}
-
-
-void CPU::LDA_ABX() {
-
-}
-
-
-void CPU::LDA_ABY() {
-
-}
-
-
-void CPU::LDA_INX() {
-
-}
-
-
-void CPU::LDA_INY() {
-
-}
-
-
-
-void CPU::LDX_IMM() {
-
-}
-
-
-void CPU::LDX_ZP() {
-
-}
-
-
-void CPU::LDX_ZPY() {
-
-}
-
-
-void CPU::LDX_AB() {
-
-}
-
-
-void CPU::LDX_ABY() {
-
-}
-
-
-
-void CPU::LDY_IMM() {
-
-}
-
-
-void CPU::LDY_ZP() {
-
-}
-
-
-void CPU::LDY_ZPX() {
-
-}
-
-
-void CPU::LDY_AB() {
-
-}
-
-
-void CPU::LDY_ABX() {
-
-}
-
-
-
-void CPU::LSR_ACC() {
-
-}
-
-
-void CPU::LSR_ZP() {
-
-}
-
-
-void CPU::LSR_ZPX() {
-
-}
-
-
-void CPU::LSR_AB() {
-
-}
-
-
-void CPU::LSR_ABX() {
-
-}
-
-
-
-void CPU::NOP() {
-
-}
-
-
-
-void CPU::ORA_IMM() {
-
-}
-
-
-void CPU::ORA_ZP() {
-
-}
-
-
-void CPU::ORA_ZPX() {
-
-}
-
-
-void CPU::ORA_AB() {
-
-}
-
-
-void CPU::ORA_ABX() {
-
-}
-
-
-void CPU::ORA_ABY() {
-
-}
-
-
-void CPU::ORA_INX() {
-
-}
-
-
-void CPU::ORA_INY() {
-
-}
-
-
-
-void CPU::PHA() {
-
-}
-
-
-
-void CPU::PHP() {
-
-}
-
-
-
-void CPU::PLA() {
-
-}
-
-
-
-void CPU::PLP() {
-
-}
-
-
-
-void CPU::ROL_ACC() {
-
-}
-
-
-void CPU::ROL_ZP() {
-
-}
-
-
-void CPU::ROL_ZPX() {
-
-}
-
-
-void CPU::ROL_AB() {
-
-}
-
-
-void CPU::ROL_ABX() {
-
-}
-
-
-
-void CPU::ROR_ACC() {
-
-}
-
-
-void CPU::ROR_ZP() {
-
-}
-
-
-void CPU::ROR_ZPX() {
-
-}
-
-
-void CPU::ROR_AB() {
-
-}
-
-
-void CPU::ROR_ABX() {
-
-}
-
-
-
-void CPU::RTI() {
-
-}
-
-
-
-void CPU::RTS() {
-
-}
-
-
-
-void CPU::SBC_IMM() {
-
-}
-
-
-void CPU::SBC_ZP() {
-
-}
-
-
-void CPU::SBC_ZPX() {
-
-}
-
-
-void CPU::SBC_AB() {
-
-}
-
-
-void CPU::SBC_ABX() {
-
-}
-
-
-void CPU::SBC_ABY() {
-
-}
-
-
-void CPU::SBC_INX() {
-
-}
-
-
-void CPU::SBC_INY() {
-
-}
-
-
-
-void CPU::SEC() {
-
-}
-
-
-
-void CPU::SED() {
-
-}
-
-
-
-void CPU::SEI() {
-
-}
-
-
-
-void CPU::STA_ZP() {
-
-}
-
-
-void CPU::STA_ZPX() {
-
-}
-
-
-void CPU::STA_AB() {
-
-}
-
-
-void CPU::STA_ABX() {
-
-}
-
-
-void CPU::STA_ABY() {
-
-}
-
-
-void CPU::STA_INX() {
-
-}
-
-
-void CPU::STA_INY() {
-
-}
-
-
-
-void CPU::STX_ZP() {
-
-}
-
-
-void CPU::STX_ZPY() {
-
-}
-
-
-void CPU::STX_AB() {
-
-}
-
-
-
-void CPU::STY_ZP() {
-
-}
-
-
-void CPU::STY_ZPX() {
-
-}
-
-
-void CPU::STY_AB() {
-
-}
-
-
-
-void CPU::TAX() {
-
-}
-
-
-
-void CPU::TAY() {
-
-}
-
-
-
-void CPU::TSX() {
-
-}
-
-
-
-void CPU::TXA() {
-
-}
-
-
-
-
-void CPU::TXS() {
-
-}
-
-
-
-void CPU::TYA() {
 
+void CPU::AND_helper(uint16_t src) {
+    uint8_t data = memory[src];
+    data &= registers.A;
+    set_sign(data);
+    set_zero(data);
+    registers.A = data;
+}
+
+
+void CPU::ASL(uint16_t src) {
+    uint8_t data = memory[src];
+    set_carry(data & 0x80);
+    data <<= 1;
+    data &= 0xff;
+    set_sign(data);
+    set_zero(data);
+    store(src, data);
+}
+
+void CPU::ASL_ACC(uint16_t src) {
+    uint8_t data = registers.A;
+    set_carry(data & 0x80);
+    data <<= 1;
+    data &= 0xff;
+    set_sign(data);
+    set_zero(data);
+    registers.A = data;
 }
