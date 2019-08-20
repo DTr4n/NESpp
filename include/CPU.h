@@ -67,13 +67,14 @@ private:
     uint16_t get_ZP();      // Zero-Page
     uint16_t get_ZPX();     // Zero-Page Indexed X
     uint16_t get_ZPY();     // Zero-Page Indexed Y
-    uint16_t get_ACC();     // Accumulator
+    uint16_t get_ACC();     // TODO: Accumulator might not even be needed
     uint16_t get_IN();      // Indirect
     uint16_t get_INX();     // Indexed Indirect
     uint16_t get_INY();     // Indirect Indexed
     uint16_t get_REL();     // Relative
 
     // Opcodes
+    // TODO: some of these codes, I have been using a temp variable supporting only 8 bits, but need to extend to 16 bits
     void ADC(uint16_t src);         // Add memory to accumulator with carry
     void AND(uint16_t src);         // "AND" memory with accumulator
     void ASL(uint16_t src);         // Shift left one bit (memory)
@@ -96,7 +97,7 @@ private:
     void CLV(uint16_t src);         // Clear overflow flag
     void CMP(uint16_t src);         // Compare memory and accumulator
     void CPX(uint16_t src);         // Compare memory and index X
-    void CPYM(uint16_t src);        // Compare memory and index Y
+    void CPY(uint16_t src);         // Compare memory and index Y
 
     void DEC(uint16_t src);         // Decrement memory by one
     void DEX(uint16_t src);         // Decrement index X by one
