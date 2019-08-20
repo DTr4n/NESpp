@@ -148,7 +148,7 @@ void CPU::ADC_ABY() {
 
 
 void CPU::ADC_INX() {
-    ADC_helper(memory[registers.X]); // TODO: Wrong?
+    ADC_helper(memory[registers.X]); // TODO: Wrong? indirect indexed addressing vs indexed indirect mode
 }
 
 
