@@ -94,15 +94,13 @@ uint16_t CPU::rel_addr(uint8_t src) {
 }
 
 
-uint8_t pop() {        // TODO: Not sure how stack memory is gonna look like yet
-    uint8_t data = memory[--registers.S];
-    memory[--registers.S] = 0;
-    return data;
+uint8_t pop() {
+    return load(0x0100 + (++registers.S));
 }
     
 
-void push(uint8_t data) {   // TODO: Not sure how stack memory is gonna look like yet
-    store(registers.S++, data);
+void push(uint8_t data) {
+    store(0x0100 + registers.S--, data);
 }
     
 
@@ -466,23 +464,25 @@ void CPU::ORA(uint16_t src) {
 }
 
 
-void CPU::PHA(uint16_t src) {
-    // TODO: need to implement push first
+void CPU::PHA() {
+    push(registers.A);
 }
 
 
-void CPU::PHP(uint16_t src) {
-    // TODO: need to implement push first
+void CPU::PHP() {
+    push(registers.P);
 }
 
 
-void CPU::PLA(uint16_t src) {
-    // TODO: need to implement pull first
+void CPU::PLA() {
+    registers.A = pop();
+    set_sign(registers.A);
+    set_zero(registers.A)
 }
 
 
-void CPU::PLP(uint16_t src) {
-    // TODO: need to implement pull first
+void CPU::PLP() {
+    registers.P = pop();
 }
 
 
@@ -536,13 +536,19 @@ void CPU::ROR_ACC(uint16_t src) {
 }
 
 
-void CPU::RTI(uint16_t src) {
-    // TODO
+void CPU::RTI() {
+    uint8_t data = pop();   // TODO: Seems to me like this needs to be uint16_t
+    registers.P = data;
+    data = pop();
+    data |= (pop() << 8);   // TODO: Load return address from stack
+    registers.PC = data;
 }
 
 
-void CPU::RTS(uint16_t src) {
-        // TODO
+void CPU::RTS() {
+    uint8_t data = pop();       // TODO: Seems to me like this needs to be uint16_t
+    data += (pop() << 8) + 1;   // TODO: Load return address from stack and add 1
+    registers.PC = data;
 }
 
 

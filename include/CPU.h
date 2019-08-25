@@ -122,17 +122,17 @@ private:
 
     void ORA(uint16_t src);         // "OR" memory with accumulator
 
-    void PHA(uint16_t src);         // Push accumulator on stack
-    void PHP(uint16_t src);         // Push processor status on stack
-    void PLA(uint16_t src);         // Pull accumulator from stack
-    void PLP(uint16_t src);         // Pull processor status from stack
+    void PHA();                     // Push accumulator on stack
+    void PHP();                     // Push processor status on stack
+    void PLA();                     // Pull accumulator from stack
+    void PLP();                     // Pull processor status from stack
 
     void ROL(uint16_t src);         // Rotate one bit left (memory)
     void ROL_ACC(uint16_t src);     // Rotate one bit left (accumulator)
     void ROR(uint16_t src);         // Rotate one bit right (memory)
     void ROR_ACC(uint16_t src);     // Rotate one bit right (accumulator)
-    void RTI(uint16_t src);         // Return from interrupt
-    void RTS(uint16_t src);         // Return from subroutine
+    void RTI();                     // Return from interrupt
+    void RTS();                     // Return from subroutine
 
     void SBC(uint16_t src);         // Subtract memory from accumulator with borrow
     void SEC();                     // Set carry flag
