@@ -94,6 +94,18 @@ uint16_t CPU::rel_addr(uint8_t src) {
 }
 
 
+uint8_t pop() {        // TODO: Not sure how stack memory is gonna look like yet
+    uint8_t data = memory[--registers.S];
+    memory[--registers.S] = 0;
+    return data;
+}
+    
+
+void push(uint8_t data) {   // TODO: Not sure how stack memory is gonna look like yet
+    store(registers.S++, data);
+}
+    
+
 uint8_t CPU::load(uint16_t addr) {
     return memory[addr];
 }
@@ -475,40 +487,153 @@ void CPU::PLP(uint16_t src) {
 
 
 void CPU::ROL(uint16_t src) {
-    uint8_t data = memory[src];
+    uint16_t data = memory[src];
     data <<= 1;
     if (if_carry())
         data |= 0x1;
     set_carry(data > 0xff);
+    data &= 0xff;
+    set_sign(data);
+    set_zero(data);
+    store(src, data);
 }
 
 
 void CPU::ROL_ACC(uint16_t src) {
     uint8_t data = registers.A;
-
+    data <<= 1;
+    if (if_carry())
+        data |= 0x1;
+    set_carry(data > 0xff);
+    data &= 0xff;
+    set_sign(data);
+    set_zero(data);
+    registers.A = data;
 }
 
 
 void CPU::ROR(uint16_t src) {
     uint8_t data = memory[src];
-
+    if (if_carry())
+        data |= 0x100;
+    set_carry(data & 0x01);
+    data >>= 1;
+    set_sign(data);
+    set_zero(data);
+    store(src, data);
 }
 
 
 void CPU::ROR_ACC(uint16_t src) {
     uint8_t data = registers.A;
-
+    if (if_carry())
+        data |= 0x100;
+    set_carry(data & 0x01);
+    data >>= 1;
+    set_sign(data);
+    set_zero(data);
+    registers.A = data;
 }
 
 
 void CPU::RTI(uint16_t src) {
-
+    // TODO
 }
 
 
 void CPU::RTS(uint16_t src) {
-
+        // TODO
 }
 
 
+void CPU::SBC(uint16_t src) {
+    uint8_t data = memory[src];
+    uint16_t temp = registers.A - data - if_carry();
+    set_sign(temp);
+    set_zero(temp & 0xff);      // TODO: Sign and Zero are invalid in decimal mode
+    set_overflow(((registers.A ^ temp) & 0x80) && ((registers.A ^ data) & 0x80));
+    if (if_decimal()) {
+        if (((registers.A & 0xf) - if_carry()) < (data & 0xf))   // TODO: EP
+            temp -= 6;
+        if (temp > 0x99)
+            temp -= 0x60;
+    }
+    set_carry(temp < 0x100);
+    registers.A = (temp & 0xff);
+}
+
+
+void CPU::SEC() {
+    set_carry(1);
+}
+
+
+void CPU::SED() {
+    set_decimal(1);
+}
+
+
+void CPU::SEI() {
+    set_interrupt(1);
+}
+
+
+void CPU::STA(uint16_t src) {
+    store(src, registers.A);
+}
+
+
+void CPU::STX(uint16_t src) {
+    store(src, registers.X);
+}
+
+
+void CPU::STY(uint16_t src) {
+    store(src, registers.Y);
+}
+
+
+void CPU::TAX() {
+    uint8_t data = registers.A;
+    set_sign(data);
+    set_zero(data);
+    registers.X = data;
+}
+
+
+void CPU::TAY() {
+    uint8_t data = registers.A;
+    set_sign(data);
+    set_zero(data);
+    registers.Y = data;
+}
+
+
+void CPU::TSX() {
+    uint8_t data = registers.S;
+    set_sign(data);
+    set_zero(data);
+    registers.X = data;
+}
+
+
+void CPU::TXA() {
+    uint8_t data = registers.X;
+    set_sign(data);
+    set_zero(data);
+    registers.A = data;
+}
+
+
+void CPU::TXS() {
+    registers.S = registers.X;
+}
+
+
+void CPU::TYA() {
+    uint8_t data = registers.Y;
+    set_sign(data);
+    set_zero(data);
+    registers.A = data;
+}
 

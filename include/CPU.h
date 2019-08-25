@@ -46,8 +46,8 @@ private:
     uint16_t rel_addr(uint8_t src); // TODO: Not complete
     // void set_status_register();
     // uint8_t get_status_register();
-    // uint8_t pull();
-    // void push(uint8_t);
+    uint8_t pop();
+    void push(uint8_t data);
 
     // Load a byte from the memory address
     uint8_t load(uint16_t addr) const; // TODO: Not complete
@@ -135,19 +135,19 @@ private:
     void RTS(uint16_t src);         // Return from subroutine
 
     void SBC(uint16_t src);         // Subtract memory from accumulator with borrow
-    void SEC(uint16_t src);         // Set carry flag
-    void SED(uint16_t src);         // Set decimal mode
-    void SEI(uint16_t src);         // Set interrupt disable status
+    void SEC();                     // Set carry flag
+    void SED();                     // Set decimal mode
+    void SEI();                     // Set interrupt disable status
     void STA(uint16_t src);         // Store accumulator in memory
     void STX(uint16_t src);         // Store index X in memory
     void STY(uint16_t src);         // Store index Y in memory
 
-    void TAX(uint16_t src);         // Transfer accumulator to index X
-    void TAY(uint16_t src);         // Transfer accumulator to index Y
-    void TSX(uint16_t src);         // Transfer stack pointer to index X
-    void TXA(uint16_t src);         // Transfer index X to accumulator
-    void TXS(uint16_t src);         // Transfer index X to stack pointer
-    void TYA(uint16_t src);         // Transfer index Y to accumulator
+    void TAX();                     // Transfer accumulator to index X
+    void TAY();                     // Transfer accumulator to index Y
+    void TSX();                     // Transfer stack pointer to index X
+    void TXA();                     // Transfer index X to accumulator
+    void TXS();                     // Transfer index X to stack pointer
+    void TYA();                     // Transfer index Y to accumulator
 };
 
 #endif // CPU_H
