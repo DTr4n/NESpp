@@ -2,7 +2,7 @@
 
 
 bool CPU::if_carry() {
-    return registers.P & 0x1; 
+    return registers.P & 0x1;
 }
 
 
@@ -14,7 +14,7 @@ bool CPU::if_zero() {
 bool CPU::if_interrupt() {
     return (registers.P >> 2) & 0x1;
 }
-       
+
 
 bool CPU::if_decimal() {
     return (registers.P >> 3) & 0x1;
@@ -89,20 +89,15 @@ void CPU::set_sign(uint8_t src) {
 }
 
 
-uint16_t CPU::rel_addr(uint8_t src) {
-    return src + registers.PC;
-}
-
-
 uint8_t pop() {
     return load(0x0100 + (++registers.S));
 }
-    
+
 
 void push(uint8_t data) {
     store(0x0100 + registers.S--, data);
 }
-    
+
 
 uint8_t CPU::load(uint16_t addr) {
     return memory[addr];
@@ -159,11 +154,6 @@ uint16_t CPU::get_ZPY() {
 }
 
 
-uint16_t CPU::get_ACC() {
-    return 0;   // unused
-}
-
-
 uint16_t CPU::get_IN() {
     // TODO
 }
@@ -180,7 +170,8 @@ uint16_t CPU::get_INY() {
 
 
 uint16_t CPU::get_REL() {
-    // TODO
+    // TODO: Very high chance this is wrong, didn't really get the conversion to signed and back
+    return registers.PC + (int8_t)next_byte();
 }
 
 
@@ -235,18 +226,26 @@ void CPU::ASL_ACC(uint16_t src) {
 
 
 void CPU::BCC(uint16_t src) {
-    uint8_t data = memory[src];
-
+    if (!if_carry()) {
+        // TOOD: clk?
+        registers.PC = src;
+    }
 }
 
 
 void CPU::BCS(uint16_t src) {
-
+    if (if_carry()) {
+        // TOOD: clk?
+        registers.PC = src;
+    }
 }
 
 
 void CPU::BEQ(uint16_t src) {
-
+    if (if_zero()) {
+        // TOOD: clk?
+        registers.PC = src;
+    }
 }
 
 
@@ -256,17 +255,26 @@ void CPU::BIT(uint16_t src) {
 
 
 void CPU::BMI(uint16_t src) {
-
+    if (if_sign()) {
+        // TOOD: clk?
+        registers.PC = src;
+    }
 }
 
 
 void CPU::BNE(uint16_t src) {
-
+    if (!if_zero()) {
+        // TOOD: clk?
+        registers.PC = src;
+    }
 }
 
 
 void CPU::BPL(uint16_t src) {
-
+    if (!if_sign()) {
+        // TOOD: clk?
+        registers.PC = src;
+    }
 }
 
 
@@ -276,12 +284,18 @@ void CPU::BRK(uint16_t src) {
 
 
 void CPU::BVC(uint16_t src) {
-
+    if (!if_overflow()) {
+        // TOOD: clk?
+        registers.PC = src;
+    }
 }
 
 
 void CPU::BVS(uint16_t src) {
-
+    if (if_overflow()) {
+        // TOOD: clk?
+        registers.PC = src;
+    }
 }
 
 
@@ -374,7 +388,7 @@ void CPU::INC(uint16_t src) {
     set_sign(data);
     set_zero(data);
     store(src, data);
-}   
+}
 
 
 void CPU::INX(uint16_t src) {
@@ -642,4 +656,3 @@ void CPU::TYA() {
     set_zero(data);
     registers.A = data;
 }
-

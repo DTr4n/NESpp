@@ -43,20 +43,14 @@ private:
     void set_overflow(bool condition);
     void set_sign(uint8_t src);
 
-    uint16_t rel_addr(uint8_t src); // TODO: Not complete
-    // void set_status_register();
-    // uint8_t get_status_register();
+    // Read/Write 
     uint8_t pop();
     void push(uint8_t data);
-
-    // Load a byte from the memory address
     uint8_t load(uint16_t addr) const; // TODO: Not complete
-
-    // Store a byte to the memory address
     void store(uint16_t addr, uint8_t data); // TODO: Not complete
-
     void next_byte(); // TODO: I feel like this can be replaced with load(pc++)
 
+    // Helper function to convert data from little endian to big endian
     inline uint16_t little_to_big_endian(uint8_t low, uint8_t high);
 
     // Addressing Modes
@@ -67,14 +61,12 @@ private:
     uint16_t get_ZP();      // Zero-Page
     uint16_t get_ZPX();     // Zero-Page Indexed X
     uint16_t get_ZPY();     // Zero-Page Indexed Y
-    uint16_t get_ACC();     // TODO: Accumulator might not even be needed
     uint16_t get_IN();      // Indirect
     uint16_t get_INX();     // Indexed Indirect
     uint16_t get_INY();     // Indirect Indexed
     uint16_t get_REL();     // Relative
 
     // Opcodes
-    // TODO: some of these codes, I have been using a temp variable supporting only 8 bits, but need to extend to 16 bits
     void ADC(uint16_t src);         // Add memory to accumulator with carry
     void AND(uint16_t src);         // "AND" memory with accumulator
     void ASL(uint16_t src);         // Shift left one bit (memory)
