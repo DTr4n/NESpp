@@ -1,8 +1,9 @@
 #include <iostream>
-#include CPU.h
+#include "../include/CPU.h"
 
 int main() {
-	CPU cpu = new CPU;
-	
-	delete cpu;
+	CPU cpu = CPU();
+
+	std::cout << "Done" << std::endl;
+	return 0;
 }

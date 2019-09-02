@@ -5,9 +5,8 @@
 
 class CPU {
 public:
-    CPU();
-    ~CPU();
 
+    CPU();
     // uint8_t fetch();
     // void execute();
 
@@ -30,9 +29,9 @@ private:
     // Status register accessors and mutators
     bool if_carry() const;
     bool if_zero() const;
-    void if_interrupt() const;
-    void if_decimal() const; 
-    void if_break() const;
+    bool if_interrupt() const;
+    bool if_decimal() const; 
+    bool if_break() const;
     bool if_overflow() const;
     bool if_sign() const;
     void set_carry(bool condition);
@@ -48,7 +47,7 @@ private:
     void push(uint8_t data);
     uint8_t load(uint16_t addr) const; // TODO: Not complete
     void store(uint16_t addr, uint8_t data); // TODO: Not complete
-    void next_byte(); // TODO: I feel like this can be replaced with load(pc++)
+    uint8_t next_byte(); // TODO: I feel like this can be replaced with load(pc++)
 
     // Helper function to convert data from little endian to big endian
     inline uint16_t little_to_big_endian(uint8_t low, uint8_t high);
@@ -79,7 +78,7 @@ private:
     void BMI(uint16_t src);         // Branch on result minus
     void BNE(uint16_t src);         // Branch on result not zero
     void BPL(uint16_t src);         // Branch on result plus
-    void BRK(uint16_t src);         // Force break
+    void BRK();                     // Force break
     void BVC(uint16_t src);         // Branch on overflow clear
     void BVS(uint16_t src);         // Branch on overflow set
 

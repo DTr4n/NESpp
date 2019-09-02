@@ -1,37 +1,43 @@
-#include "CPU.h"
+#include "../include/CPU.h"
 
 
-bool CPU::if_carry() {
+CPU::CPU() {
+    registers = {0, 0, 0, 0, 0, 0};
+    uint8_t memory[65536] = {};
+}
+
+
+bool CPU::if_carry() const {
     return registers.P & 0x1;
 }
 
 
-bool CPU::if_zero() {
+bool CPU::if_zero() const {
     return (registers.P >> 1) & 0x1;
 }
 
 
-bool CPU::if_interrupt() {
+bool CPU::if_interrupt() const {
     return (registers.P >> 2) & 0x1;
 }
 
 
-bool CPU::if_decimal() {
+bool CPU::if_decimal() const {
     return (registers.P >> 3) & 0x1;
 }
 
 
-bool CPU::if_break() {
+bool CPU::if_break() const {
     return (registers.P >> 4) & 0x1;
 }
 
 
-bool CPU::if_overflow() {
+bool CPU::if_overflow() const {
     return (registers.P >> 6) & 0x1;
 }
 
 
-bool CPU::if_sign() {
+bool CPU::if_sign() const {
     return (registers.P >> 7) & 0x1;
 }
 
@@ -89,17 +95,17 @@ void CPU::set_sign(uint8_t src) {
 }
 
 
-uint8_t pop() {
+uint8_t CPU::pop() {
     return load(0x0100 + (++registers.S));
 }
 
 
-void push(uint8_t data) {
+void CPU::push(uint8_t data) {
     store(0x0100 + registers.S--, data);
 }
 
 
-uint8_t CPU::load(uint16_t addr) {
+uint8_t CPU::load(uint16_t addr) const {
     return memory[addr];
 }
 
@@ -160,17 +166,21 @@ uint16_t CPU::get_IN() {
 
 
 uint16_t CPU::get_INX() {
-    // TODO
+    uint16_t zeroL = (next_byte() + registers.X) % 256;
+    uint16_t zeroH = (zeroL + 1) % 256;
+    return little_to_big_endian(load(zeroL), load(zeroH));
 }
 
 
 uint16_t CPU::get_INY() {
-    // TODO
+    uint16_t zeroL = next_byte();
+    uint16_t zeroH = (zeroL + 1) % 256;
+    return little_to_big_endian(load(zeroL), load(zeroH)) + registers.Y;
 }
 
 
 uint16_t CPU::get_REL() {
-    // TODO: Very high chance this is wrong, didn't really get the conversion to signed and back
+    // TODO: Chance this is wrong, didn't really get the conversion to signed and back
     return registers.PC + (int8_t)next_byte();
 }
 
@@ -190,11 +200,11 @@ void CPU::ADC(uint16_t src) {
         set_overflow(!((registers.A ^ data) & 0x80) && ((registers.A ^ temp) & 0x80));
         set_carry(temp > 0x99);
     }
-    CPU_Registers.A = (uint8_t)temp;
+    registers.A = (uint8_t)temp;
 }
 
 
-void CPU::AND_helper(uint16_t src) {
+void CPU::AND(uint16_t src) {
     uint8_t data = memory[src];
     data &= registers.A;
     set_sign(data);
@@ -250,7 +260,10 @@ void CPU::BEQ(uint16_t src) {
 
 
 void CPU::BIT(uint16_t src) {
-
+    uint8_t data = memory[src];
+    set_sign(data);
+    set_overflow(0x40 & data);  // Copy bit 6 to OVERFLOW flag
+    set_zero(src & registers.A);
 }
 
 
@@ -278,8 +291,15 @@ void CPU::BPL(uint16_t src) {
 }
 
 
-void CPU::BRK(uint16_t src) {
-
+void CPU::BRK() {
+    ++registers.PC;
+    push((registers.PC >> 8) & 0xff);   // Push return addr onto the stack
+    push(registers.PC & 0xff);
+    set_break(1);                       // Set Break flag before pushing
+    push(registers.P);
+    set_interrupt(1);
+    registers.PC = (load(0xfffe) | (load(0xffff) << 8));
+    // TODO: Didn't really understand break instruction
 }
 
 
@@ -411,35 +431,40 @@ void CPU::INY(uint16_t src) {
 
 void CPU::JMP(uint16_t src) {
     // TODO: data of src address will be 8 bits, but PC is 16 bits
-    registers.PC =
+    uint8_t data = memory[src];
+    registers.PC = data;
 }
 
 
 void CPU::JSR(uint16_t src) {
-    // TODO
+    uint8_t data = memory[src];
+    --registers.PC;
+    push((registers.PC >> 8) & 0xff);   // Push return addr onto the stack
+    push(registers.PC & 0xff);
+    registers.PC = data;
 }
 
 
 void CPU::LDA(uint16_t src) {
     uint8_t data = memory[src];
-    set_sign(data)
-    set_zero(data)
+    set_sign(data);
+    set_zero(data);
     registers.A = data;
 }
 
 
 void CPU::LDX(uint16_t src) {
     uint8_t data = memory[src];
-    set_sign(data)
-    set_zero(data)
+    set_sign(data);
+    set_zero(data);
     registers.X = data;
 }
 
 
 void CPU::LDY(uint16_t src) {
     uint8_t data = memory[src];
-    set_sign(data)
-    set_zero(data)
+    set_sign(data);
+    set_zero(data);
     registers.Y = data;
 }
 
@@ -491,7 +516,7 @@ void CPU::PHP() {
 void CPU::PLA() {
     registers.A = pop();
     set_sign(registers.A);
-    set_zero(registers.A)
+    set_zero(registers.A);
 }
 
 
