@@ -2,13 +2,14 @@
 #define CPU_H
 
 #include <cstdint>
+#include <cstdio> // TODO: necessary? used for printf
 
 class CPU {
 public:
 
     CPU();
     // uint8_t fetch();
-    // void execute();
+    void execute();
 
 
 private:
@@ -23,6 +24,17 @@ private:
 
     CPU_Registers registers;
     uint8_t memory[65536];
+
+    /* Numeric value of opcode is used to index the function pointer table.
+       Each entry of the table is a function emulating the corresponding opcode
+    */
+    // void (*Instruction_Set[256])(uint16_t src);
+    /* TODO for long term maybe: Function pointer table alone won't work. Need to have 
+       a struct that contains both function pointer to address type and opcode. And 
+       then array of that struct
+       http://www.multigesture.net/wp-content/uploads/mirror/zenogais/FunctionPointers.htm
+    */
+
 
     // TODO clock; 
     
@@ -69,7 +81,7 @@ private:
     void ADC(uint16_t src);         // Add memory to accumulator with carry
     void AND(uint16_t src);         // "AND" memory with accumulator
     void ASL(uint16_t src);         // Shift left one bit (memory)
-    void ASL_ACC(uint16_t src);     // Shift left one bit (accumulator)
+    void ASL_ACC();                 // Shift left one bit (accumulator)
  
     void BCC(uint16_t src);         // Branch on carry clear
     void BCS(uint16_t src);         // Branch on carry set
@@ -82,23 +94,23 @@ private:
     void BVC(uint16_t src);         // Branch on overflow clear
     void BVS(uint16_t src);         // Branch on overflow set
 
-    void CLC(uint16_t src);         // Clear carry flag
-    void CLD(uint16_t src);         // Clear decimal mode
-    void CLI(uint16_t src);         // Clear interrupt disable bit
-    void CLV(uint16_t src);         // Clear overflow flag
+    void CLC();                     // Clear carry flag
+    void CLD();                     // Clear decimal mode
+    void CLI();                     // Clear interrupt disable bit
+    void CLV();                     // Clear overflow flag
     void CMP(uint16_t src);         // Compare memory and accumulator
     void CPX(uint16_t src);         // Compare memory and index X
     void CPY(uint16_t src);         // Compare memory and index Y
 
     void DEC(uint16_t src);         // Decrement memory by one
-    void DEX(uint16_t src);         // Decrement index X by one
-    void DEY(uint16_t src);         // Decrement index Y by one
+    void DEX();                     // Decrement index X by one
+    void DEY();                     // Decrement index Y by one
 
     void EOR(uint16_t src);         // "XOR" memory with accumulator
 
     void INC(uint16_t src);         // Increment memory by one
-    void INX(uint16_t src);         // Increment index X by one
-    void INY(uint16_t src);         // Increment index Y by one
+    void INX();                     // Increment index X by one
+    void INY();                     // Increment index Y by one
 
     void JMP(uint16_t src);         // Jump to new location
     void JSR(uint16_t src);         // Jump to new location saving return address
@@ -107,9 +119,9 @@ private:
     void LDX(uint16_t src);         // Load index X with memory
     void LDY(uint16_t src);         // Load index Y with memory
     void LSR(uint16_t src);         // Shift right one bit (memory)
-    void LSR_ACC(uint16_t src);     // Shift right one bit (accumulator)
+    void LSR_ACC();                 // Shift right one bit (accumulator)
 
-    void NOP(uint16_t src);         // No operation
+    void NOP();                     // No operation
 
     void ORA(uint16_t src);         // "OR" memory with accumulator
 
@@ -119,9 +131,9 @@ private:
     void PLP();                     // Pull processor status from stack
 
     void ROL(uint16_t src);         // Rotate one bit left (memory)
-    void ROL_ACC(uint16_t src);     // Rotate one bit left (accumulator)
+    void ROL_ACC();                 // Rotate one bit left (accumulator)
     void ROR(uint16_t src);         // Rotate one bit right (memory)
-    void ROR_ACC(uint16_t src);     // Rotate one bit right (accumulator)
+    void ROR_ACC();                 // Rotate one bit right (accumulator)
     void RTI();                     // Return from interrupt
     void RTS();                     // Return from subroutine
 
@@ -132,13 +144,13 @@ private:
     void STA(uint16_t src);         // Store accumulator in memory
     void STX(uint16_t src);         // Store index X in memory
     void STY(uint16_t src);         // Store index Y in memory
-
+            
     void TAX();                     // Transfer accumulator to index X
     void TAY();                     // Transfer accumulator to index Y
     void TSX();                     // Transfer stack pointer to index X
     void TXA();                     // Transfer index X to accumulator
     void TXS();                     // Transfer index X to stack pointer
     void TYA();                     // Transfer index Y to accumulator
-};
+};          
 
 #endif // CPU_H
