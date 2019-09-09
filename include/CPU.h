@@ -3,13 +3,14 @@
 
 #include <cstdint>
 #include <cstdio> // TODO: necessary? used for printf
+#include <fstream>
 
 class CPU {
 public:
 
-    CPU();
-    // uint8_t fetch();
-    void execute();
+    CPU(uint16_t initial_PC);
+    void power_on();
+    void execute(std::ofstream debug_file); // TODO: actually it fetch, decode and execute
 
 
 private:
@@ -18,7 +19,7 @@ private:
         uint8_t X;      // X Index
         uint8_t Y;      // Y Index
         uint16_t PC;    // Program Counter
-        uint8_t S;      // Stack Pointer
+        uint8_t SP;     // Stack Pointer
         uint8_t P;      // Status Register
     };
 
@@ -65,17 +66,17 @@ private:
     inline uint16_t little_to_big_endian(uint8_t low, uint8_t high);
 
     // Addressing Modes
-    uint16_t get_IMM();     // Immediate
-    uint16_t get_AB();      // Absolute
-    uint16_t get_ABX();     // Absolute Indexed X
-    uint16_t get_ABY();     // Absolute Indexed Y
-    uint16_t get_ZP();      // Zero-Page
-    uint16_t get_ZPX();     // Zero-Page Indexed X
-    uint16_t get_ZPY();     // Zero-Page Indexed Y
-    uint16_t get_IN();      // Indirect
-    uint16_t get_INX();     // Indexed Indirect
-    uint16_t get_INY();     // Indirect Indexed
-    uint16_t get_REL();     // Relative
+    uint16_t get_IMM();             // Immediate
+    uint16_t get_AB();              // Absolute
+    uint16_t get_ABX();             // Absolute Indexed X
+    uint16_t get_ABY();             // Absolute Indexed Y
+    uint16_t get_ZP();              // Zero-Page
+    uint16_t get_ZPX();             // Zero-Page Indexed X
+    uint16_t get_ZPY();             // Zero-Page Indexed Y
+    uint16_t get_IN();              // Indirect
+    uint16_t get_INX();             // Indexed Indirect
+    uint16_t get_INY();             // Indirect Indexed
+    uint16_t get_REL();             // Relative
 
     // Opcodes
     void ADC(uint16_t src);         // Add memory to accumulator with carry
